@@ -5,19 +5,19 @@
 #define CSVG_PRIVATE_H
 
 /* VERSION DEFINITIONS */
-#define VER_STRING	"1.0.0.60"
+#define VER_STRING	"1.0.0.65"
 #define VER_MAJOR	1
 #define VER_MINOR	0
 #define VER_RELEASE	0
-#define VER_BUILD	60
+#define VER_BUILD	65
 #define COMPANY_NAME	"maddsua"
-#define FILE_VERSION	"1.0.0.60"
+#define FILE_VERSION	"1.0.0.65"
 #define FILE_DESCRIPTION	"svg-to-css (url encoder)"
 #define INTERNAL_NAME	""
 #define LEGAL_COPYRIGHT	"https://gitlab.com/maddsua"
 #define LEGAL_TRADEMARKS	"2022 maddsua/dev"
 #define ORIGINAL_FILENAME	"csvg"
 #define PRODUCT_NAME	""
-#define PRODUCT_VERSION	"1.0.0.60"
+#define PRODUCT_VERSION	"1.0.0.65"
 
 #endif /*CSVG_PRIVATE_H*/
