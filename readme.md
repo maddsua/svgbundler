@@ -26,6 +26,8 @@ This cool can be compiled for Linux or Mac with `#define PLATFORM_WIN32` comment
 
 `-s` : enables code optimization (gets rid of metadata)
 
+`-r` : open file in a shell when done
+
 
 #### CLI:
 
@@ -53,3 +55,6 @@ vector.css:
 ```
 
 
+## Download
+
+<https://gitlab.com/maddsua/svg-to-css-encoder/build/win32-cli-latest.zip>
