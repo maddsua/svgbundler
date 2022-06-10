@@ -32,7 +32,7 @@ This cool can be compiled for Linux or Mac with `#define PLATFORM_WIN32` comment
 #### CLI:
 
 ```
-D:\git\svg-to-css-encoder\src>csvg -o vector.css -p icon
+D:\git\svg-to-css-encoder\src>csvg -s -r -o vector.css -p icon
 
 SVG to CSS Encoder build 60
 
