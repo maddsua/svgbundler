@@ -1,0 +1,9 @@
+
+*.layout
+*.res
+*.o
+*.svg
+*.css
+*.win
+*.rc
+*.exe
