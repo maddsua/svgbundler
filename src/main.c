@@ -31,11 +31,12 @@ int main(int argc, char** argv) {
 	char* cssClassPrefix = NULL;
 	
 	bool optimize = false;
+	bool openInShell = false;
 	
 	
 //	start args
 	if(argc == 2 && (!strcmp(argv[1], "--help") || !strcmp(argv[1], "-h"))) {
-		printf("Usage: %s -i [svg_file_name.svg] -o [output_file_name.css] -p [css_class_prefix_name]\n -s - enable optimization\n", ORIGINAL_FILENAME);
+		printf("Usage: %s -i [svg_file_name.svg] -o [output_file_name.css] -p [css_class_prefix_name]\n -s - enable optimization\n -r - open file in a shell when done\n", ORIGINAL_FILENAME);
 		printf("\nTool created by %s\n", LEGAL_COPYRIGHT);
 		return 0;
 	}
@@ -44,8 +45,11 @@ int main(int argc, char** argv) {
 	for(int i = 1; i < argc; i++) {
 		
 		if(!strcmp(argv[i], "-s")) {
-			
 			optimize = true;			
+			continue;
+		}
+		else if(!strcmp(argv[i], "-r")) {
+			openInShell = true;			
 			continue;
 		}
 		
@@ -237,11 +241,18 @@ int main(int argc, char** argv) {
 	
 	fclose(convertedCSS);
 	
-	if(filesDone > 0 && cssClassPrefix != NULL){
-		printf("\nSaved to \"%s\" with a \".%s\" class\n", cssResultFile, cssClassPrefix);
-	}
-	else if (filesDone > 0) {
-		printf("\nSaved to \"%s\"\n", cssResultFile);
+	if(filesDone > 0){
+		
+		if(cssClassPrefix != NULL) {
+			printf("\nSaved to \"%s\" with a \".%s\" class\n", cssResultFile, cssClassPrefix);
+		} else {
+			printf("\nSaved to \"%s\"\n", cssResultFile);
+		}
+		
+		if(openInShell) {
+			system(cssResultFile);
+		}
+		
 	} else {
 		printf("\nNothing is done.\n", cssResultFile);
 		remove(cssResultFile);
