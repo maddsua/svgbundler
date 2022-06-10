@@ -258,6 +258,8 @@ int main(int argc, char** argv) {
 		remove(cssResultFile);
 	}
 	
+	rmtd(svgFilesList, filesToProcess);
+	
 	return 0;
 }
 
