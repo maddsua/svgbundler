@@ -5,6 +5,13 @@
 #include <stdbool.h>
 #include <string.h>
 
+
+typedef struct _urlchar {
+	char from;
+	char to[4];
+} urlchar;
+
+
 #define PLATFORM_WIN32
 
 #ifdef PLATFORM_WIN32
@@ -13,8 +20,20 @@
 	
 #endif
 
-#include "main.h"
+#include "data.h"
 #include "csvg_private.h"
+
+
+const size_t tableSize = (sizeof(swapTable) / sizeof(urlchar));
+const size_t metaTagsTableSize = (sizeof(metaTagsTable) / sizeof(metaTagsTable[0]));
+const size_t chunkSize = 1024;
+
+
+bool removeMeta(char* srcString, const char* trigger);
+void slideBack(char* str, size_t pos);
+char* swapFor(char* str, const char* substr, size_t pos);
+void rmtd(char** array, const size_t x);
+char** addFileListItem(char** pool, size_t* items, const char* item);
 
 
 int main(int argc, char** argv) {
@@ -108,7 +127,7 @@ int main(int argc, char** argv) {
 //	some more text
 		printf("Found %i svg files\n", filesToProcess);
 		
-		if(optimize) printf("SVG optimization enabled\n");
+		if(optimize) printf(" * SVG optimization enabled\n");
 		
 		printf("\n");
 
@@ -124,7 +143,7 @@ int main(int argc, char** argv) {
 
 		
 //	file processing loop
-	for(int i = 0; i < filesToProcess; i++) {
+	for(int i_fp = 0; i_fp < filesToProcess; i_fp++) {
 		
 		//	load svg-source file by chunks
 		unsigned int chunks = 1;
@@ -133,10 +152,10 @@ int main(int argc, char** argv) {
 		char* svgContents = (char*)malloc(svgContentsSize);
 			memset(svgContents, 0, svgContentsSize);
 	
-		FILE* svgSource = fopen(svgFilesList[i], "r");
+		FILE* svgSource = fopen(svgFilesList[i_fp], "r");
 	
 		if(svgSource == NULL) {
-			printf("Can't open \"%s\". Skipping\n", svgFilesList[i]);
+			printf("Can't open \"%s\". Skipping\n", svgFilesList[i_fp]);
 			continue;
 		}
 		
@@ -174,37 +193,49 @@ int main(int argc, char** argv) {
 		
 		fclose(svgSource);
 		
+		
+		//	remove meta tags
+		if(optimize) {
+			
+			for(int i_mt = 0; i_mt < metaTagsTableSize; i_mt++) {
+
+				if(removeMeta(svgContents, metaTagsTable[i_mt])) i_mt--;
+			}
+		}
 	
-		// remove repeating whitespaces and line breaks
-		unsigned int i_rm = 0;
-		while(i_rm < strlen(svgContents)) {
-			
+		// remove repeating whitespaces, tabs, and any line breaks
+		for(int i_rm = 0; i_rm < strlen(svgContents); i_rm++) {
+		
 			const unsigned int lastChar = (strlen(svgContents) - 1);
+			const unsigned int next = (i_rm + 1);
+		
+			if(svgContents[0] == ' ' || svgContents[0] == '\n' || svgContents[0] == '\t') {
 			
-			if(svgContents[0] == ' ' || svgContents[0] == '\n') {
 				slideBack(svgContents, 0);
+				i_rm--;
 			}
-			else if(svgContents[0] == ' ' || svgContents[0] == '\n') {
+			else if(svgContents[lastChar] == ' ' || svgContents[lastChar] == '\n' || svgContents[lastChar] == '\t') {
+			
 				svgContents[lastChar] = '\0';
+				i_rm--;
 			}
-			else if((svgContents[i_rm] == ' ' && svgContents[i_rm + 1] == ' ') || svgContents[i_rm] == '\n') {
+			else if(((svgContents[i_rm] == ' ' || svgContents[i_rm] == '\t') && (svgContents[next] == ' ' || svgContents[next] == '<' || svgContents[next] == '>' || svgContents[next] == '\t'))  || svgContents[i_rm] == '\n') {
+			
 				slideBack(svgContents, i_rm);
-			}
-			else {
-				i_rm++;
+				i_rm -= 2;
 			}
 		}
 		
 	
 		// swap unsafe characters with ok ones
-		for(int m = 0; m < strlen(svgContents); m++){
+		for(int i_ss = 0; i_ss < strlen(svgContents); i_ss++) {
 		
-			for(int n = 0; n < tableSize; n++){
+			for(int i_sw = 0; i_sw < tableSize; i_sw++) {
 			
-				if(svgContents[m] == swapTable[n].from){
+				if(svgContents[i_ss] == swapTable[i_sw].from) {
 				
-					svgContents = swapFor(svgContents, swapTable[n].to, m);
-					m += (strlen(swapTable[n].to) - 1);
+					svgContents = swapFor(svgContents, swapTable[i_sw].to, i_ss);
+					i_ss += (strlen(swapTable[i_sw].to) - 1);
 				
 					break;
 				}
@@ -215,16 +246,21 @@ int main(int argc, char** argv) {
 		char filename[PATH_MAX + 1] = {0};
 			size_t fnbody = PATH_MAX;
 			
-			char* ifDot = strchr(svgFilesList[i], '.');
-			
+			//	remove extension
+			char* ifDot = strchr(svgFilesList[i_fp], '.');
 			if(ifDot != NULL) {
-				
-				size_t dotPos = (size_t)(ifDot - svgFilesList[i] + 1);
-				
-				fnbody = (dotPos - 1);
+				fnbody = (size_t)(ifDot - svgFilesList[i_fp]);
 			}
-		
-			strncpy(filename, svgFilesList[i], fnbody);
+			strncpy(filename, svgFilesList[i_fp], fnbody);
+			
+			// remove white spaces
+			for(int i_nm = 0; i_nm < strlen(filename); i_nm++) {
+				
+				if(filename[i_nm] == ' ') {
+					slideBack(filename, i_nm);
+					i_nm--;
+				}
+			}
 		
 		
 		if(cssClassPrefix != NULL) {
@@ -234,14 +270,14 @@ int main(int argc, char** argv) {
 		}
 		
 		filesDone++;
-		printf(" --> \"%s\" done\n", svgFilesList[i]);
+		printf(" --> \"%s\" done\n", svgFilesList[i_fp]);
 		
 		free(svgContents);
 	}
 	
 	fclose(convertedCSS);
 	
-	if(filesDone > 0){
+	if(filesDone > 0) {
 		
 		if(cssClassPrefix != NULL) {
 			printf("\nSaved to \"%s\" with a \".%s\" class\n", cssResultFile, cssClassPrefix);
@@ -263,6 +299,50 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
+
+
+bool removeMeta(char* srcString, const char* trigger) {
+	
+	//	find unwanted meta attribute
+	char* tTagPos = strstr(srcString, trigger);
+	
+	//	if its found
+	if(tTagPos != NULL) {
+		
+		//	get its position in a string
+		const size_t startWiping = (size_t)(tTagPos - srcString);
+		
+		// check if there is a '=' symbol after it
+		if(srcString[startWiping + strlen(trigger)] == '=') {
+			
+			//	count quote symbols
+			short qcount = 0;
+			
+			for(int i = startWiping; i < strlen(srcString); i++) {
+				
+				//	add to quote counter if we encounter one
+				if(srcString[i] == '\"'/* || srcString[i] == '\''*/) {
+					qcount++;
+				}
+				
+				//	remove one symbol and step back
+				slideBack(srcString, i);
+				i--;
+
+				//	stop wiping if two quote symbols passed
+				if(qcount > 1) {
+					break;
+				}
+			}
+			
+			// yes, we removed that meta data
+			return true;
+		}
+	}
+	
+	//	no, there wasnt such a meta data
+	return false;
+}
 
 char** addFileListItem(char** pool, size_t* items, const char* item) {
 	
@@ -295,14 +375,6 @@ char** addFileListItem(char** pool, size_t* items, const char* item) {
 		
 		return newPool;
 	}
-}
-
-void rmtd(char** array, const size_t x) {
-	
-	for(int i = 0; i < x; i++) {
-		free(array[i]);
-	}
-	free(array);
 }
 
 char* swapFor(char* str, const char* substr, size_t pos) {
@@ -344,6 +416,7 @@ char* swapFor(char* str, const char* substr, size_t pos) {
 	return swapResult;
 }
 
+
 void slideBack(char* str, size_t pos) {
 	
 	size_t baseLen = pos + 1;
@@ -353,28 +426,34 @@ void slideBack(char* str, size_t pos) {
 		memset(base, 0, baseSize);
 		strncpy(base, str, baseLen - 1);
 		
-	size_t shiftLen = (strlen(str) - (pos + 1));
-	size_t shiftSize = ((shiftLen + 1) * sizeof(char));
-	char* shift = (char*)malloc(shiftSize);
-	
-		memset(shift, 0, shiftSize);
-		strncpy(shift, str + baseLen, shiftLen);
+	// isn't it the last char?
+	if(strlen(str) - pos > 1) {
 		
-	// put together
-	memset(str + pos, 0, shiftLen);
-	strcat(str, shift);
-	//puts(str);
+		size_t shiftLen = (strlen(str) - (pos + 1));
+		size_t shiftSize = ((shiftLen + 1) * sizeof(char));
+		char* shift = (char*)malloc(shiftSize);
+	
+			memset(shift, 0, shiftSize);
+			strncpy(shift, str + baseLen, shiftLen);
+		
+		// put together
+		memset(str + pos, 0, shiftLen);
+		strcat(str, shift);
+		
+		free(shift);
+	}
+	else {
+		str[strlen(str) - 1] = '\0';
+	}
+
 	free(base);
-	free(shift);
 }
 
-/*
+
+void rmtd(char** array, const size_t x) {
 	
-	puts("\n\n");
-	
-	char findtest[] = "123456789";
-	
-	int position = (int)(strchr(findtest, '5') - findtest + 1);
-	printf("positiong is %i", position);*/
-	
-	
+	for(int i = 0; i < x; i++) {
+		free(array[i]);
+	}
+	free(array);
+}
