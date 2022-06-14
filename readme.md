@@ -1,6 +1,6 @@
 # SVG to CSS Encoder
 
-## URL encoder for SVG: advanced CLI tool
+## URL encoder for SVG: fast tool written in C
 
 <https://gitlab.com/maddsua/svg-to-css-encoder>
 
