@@ -57,4 +57,4 @@ vector.css:
 
 ## Download
 
-<https://gitlab.com/maddsua/svg-to-css-encoder/-/blob/main/build/win32-cli-latest.zip>
+<https://gitlab.com/maddsua/svg-to-css-encoder/-/blob/main/build/win64-cli-latest.zip>

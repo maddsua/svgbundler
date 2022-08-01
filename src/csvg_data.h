@@ -1,4 +1,10 @@
-//	https://gitlab.com/maddsua/svg-to-css-encoder
+//	2022 maddsua | https://gitlab.com/maddsua/svg-to-css-encoder
+//	C svg url encoder
+
+typedef struct _urlchar {
+	char from;
+	char to[4];
+} urlchar;
 
 
 const urlchar swapTable[] = {
@@ -33,8 +39,9 @@ const urlchar swapTable[] = {
 		'=', "%3D"
 };
 
+#define metaTagsTableItem 32
 
-const char metaTagsTable[][32] = {
-	"xmlns:serif", "serif:id", "id"
+const char metaTagsTable[][metaTagsTableItem] = {
+	 "xmlns:serif","serif:id","data-name","id"
 };
 

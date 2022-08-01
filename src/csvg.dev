@@ -27,31 +27,41 @@ CommandLine=
 Folders=
 IncludeVersionInfo=1
 SupportXPThemes=0
-CompilerSet=1
-CompilerSettings=0000000100000000000000000
+CompilerSet=0
+CompilerSettings=0000000000000000000000000
 UnitCount=2
 
 [VersionInfo]
 Major=1
 Minor=0
 Release=0
-Build=106
+Build=402
 LanguageID=1033
 CharsetID=1252
 CompanyName=maddsua
-FileVersion=1.0.0.106
+FileVersion=1.0.0.402
 FileDescription=svg-to-css (url encoder)
 InternalName=
 LegalCopyright=https://gitlab.com/maddsua
 LegalTrademarks=2022 maddsua/dev
 OriginalFilename=csvg
 ProductName=
-ProductVersion=1.0.0.106
+ProductVersion=1.0.0.402
 AutoIncBuildNr=1
 SyncProduct=1
 
-[Unit1]
-FileName=main.c
+[Unit4]
+FileName=..\..\maddsua-libs\src\c\maddsua.h
+CompileCpp=0
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit5]
+FileName=..\..\maddsua-libs\src\c\madarray.c
 CompileCpp=0
 Folder=
 Compile=1
@@ -61,7 +71,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit2]
-FileName=main.h
+FileName=csvg_main.c
 CompileCpp=0
 Folder=
 Compile=1
@@ -70,8 +80,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit3]
-FileName=csvg_private.h
+[Unit1]
+FileName=csvg_data.h
 CompileCpp=0
 Folder=
 Compile=1
