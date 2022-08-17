@@ -15,7 +15,7 @@ This cool can be compiled for Linux or Mac with `#define PLATFORM_WIN32` comment
 5. ????
 6. Profit!
 
-<img src="info/demo.png" style="width: 100%; max-width: 920px;"/>
+<img src="info/demo.png" style="width: 919px; margin: auto;"/>
 
 
 ### Flags
