@@ -1,4 +1,4 @@
-//	2022 maddsua | https://gitlab.com/maddsua/svg-to-css-encoder
+//	2022 maddsua | https://github.com/maddsua/svg-to-css-encoder
 //	C svg url encoder
 
 typedef struct _urlchar {

@@ -2,7 +2,7 @@
 
 ## URL encoder for SVG: fast tool written in C
 
-<https://gitlab.com/maddsua/svg-to-css-encoder>
+[GitHub Repo](https://github.com/maddsua/svg-to-css-encoder)
 
 This cool can be compiled for Linux or Mac with `#define PLATFORM_WIN32` commented or deleted.
 
@@ -14,6 +14,8 @@ This cool can be compiled for Linux or Mac with `#define PLATFORM_WIN32` comment
 4. Use that code in your product
 5. ????
 6. Profit!
+
+<img src="info/demo.png" style="width: 100%; max-width: 920px;"/>
 
 
 ### Flags
@@ -57,4 +59,5 @@ vector.css:
 
 ## Download
 
-<https://gitlab.com/maddsua/svg-to-css-encoder/-/blob/main/build/win64-cli-latest.zip>
+[📦 Download app (exe file)](build/win64-cli-b402.zip)
+
