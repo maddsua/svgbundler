@@ -15,7 +15,7 @@ This code can be compiled for Linux or Mac with `#define PLATFORM_WIN32` comment
 5. ????
 6. Profit!
 
-<img src="info/demo.webp" style="width: 720px;"/>
+<img src="info/screenshot.webp" style="width: 720px;"/>
 
 
 ### Flags
