@@ -1,0 +1,7 @@
+{
+	"files.associations": {
+		"*.httpres": "html",
+		"windows.h": "c",
+		"csvg_data.h": "c"
+	}
+}
