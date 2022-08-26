@@ -4,7 +4,7 @@
 
 [GitHub Repo](https://github.com/maddsua/svg-to-css-encoder)
 
-This code can be compiled for Linux or Mac with `#define PLATFORM_WIN32` commented or deleted.
+This code can be compiled for Linux or Mac with `#include <windows.h>` commented or deleted.
 
 ### Usage
 
