@@ -31,7 +31,7 @@ This code can be compiled for Linux or Mac with `#define PLATFORM_WIN32` comment
 `-r` : open file in a shell when done
 
 
-#### CLI:
+### CLI example:
 
 ```
 D:\git\svg-to-css-encoder\src>csvg -s -r -o vector.css -p icon
@@ -46,9 +46,9 @@ Saved to "vector.css" with a ".icon" class
 
 ```
 
-### Results in:
+**Results in:**
 
-vector.css:
+Output file: `vector.css:`
 
 ```
 .icon.orig {
@@ -57,7 +57,12 @@ vector.css:
 ```
 
 
+## Size optimizations
+
+Please note, that the resulting `.css` file size fill be slightly larger, than original `.svg`. This happens due to a special character encoding, where one symbol `"` (quote sign) convert to a sequence of 3 symbols: `%22`. This conversion doesn't apply to every character, like alphanumeric ones that won't be converted
+
+
 ## Download
 
-[📦 Download app (exe file)](build/win64-cli-b402.zip)
+[📦 Download app (exe file)](build/csvg-win64-b404.zip)
 
