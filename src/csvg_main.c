@@ -43,17 +43,15 @@ int main(int argc, char** argv) {
 	bool optimize = false;
 	bool openInShell = false;
 	
-	
-//	help message
+	//	help message
 	if(argc == 2 && (!strcmp(argv[1], "--help") || !strcmp(argv[1], "-h"))) {
 		printf("Usage: %s -i [svg_file_name.svg] -o [output_file_name.css] -p [css_class_prefix_name]\n -s - enable optimization\n -r - open file in a shell when done\n", ORIGINAL_FILENAME);
 		printf("\nTool created by %s\n", LEGAL_COPYRIGHT);
 		return 0;
 	}
 	
-	// go though start flags
+	//	go though start flags
 	for(int i = 1; i < argc; i++) {
-		
 		//	optimize flag
 		if(!strcmp(argv[i], "-s")) {
 			optimize = true;			
@@ -64,30 +62,22 @@ int main(int argc, char** argv) {
 			openInShell = true;			
 			continue;
 		}
-		
+		//	handle multiple args
 		if((argc - i) > 1) {
-			
-			const size_t nextArgLen = strlen(argv[i + 1]);
-			
-			if(nextArgLen > 0) {
-				
-				//	input file
-				if(!strcmp(argv[i], "-i")) {
-			
-					svgFilesList = tdArrPushStr(svgFilesList, &filesToProcess, argv[i + 1]);
-					i++;	
-				}
-				//	output file
-				else if (!strcmp(argv[i], "-o")) {
-			
-					strcpy(cssResultFile, argv[i + 1]);
-					i++;
-				}
-				//	prefix select
-				else if (!strcmp(argv[i], "-p")) {
-					cssClassPrefix = argv[i + 1];
-					i++;
-				}
+			//	input file
+			if(!strcmp(argv[i], "-i")) {
+				svgFilesList = tdArrPushStr(svgFilesList, &filesToProcess, argv[i + 1]);
+				i++;	
+			}
+			//	output file
+			else if (!strcmp(argv[i], "-o")) {
+				strcpy(cssResultFile, argv[i + 1]);
+				i++;
+			}
+			//	prefix select
+			else if (!strcmp(argv[i], "-p")) {
+				cssClassPrefix = argv[i + 1];
+				i++;
 			}
 		}
 	}
@@ -154,8 +144,7 @@ int main(int argc, char** argv) {
 			}
 			
 		//	remove any tabs ('\t') so next step will work 100% of the time
-		const size_t svgTextLen_valid_tab_removal = fileLength;
-		for(size_t i_tr = 0; i_tr < svgTextLen_valid_tab_removal; i_tr++) {
+		for(size_t i_tr = 0; i_tr < fileLength; i_tr++) {
 			if(svgContents[i_tr] == '\t') svgContents[i_tr] = ' ';
 		}
 		
@@ -171,9 +160,10 @@ int main(int argc, char** argv) {
 				}
 			}
 		}
-		//	! you should not use strlen() or any null-ternimated function to tedermime a size of a binary data. But here, it's king of text data 😉
 		float optimizedPercent = ((float)(fileLength - reducedLen) / fileLength) * 100;
-	
+
+		//	updating file length
+		if(reducedLen < fileLength) fileLength = reducedLen;
 
 		// remove repeating whitespaces and any line breaks
 		for(size_t i_rm = 0; i_rm < fileLength; i_rm++) {
@@ -182,17 +172,14 @@ int main(int argc, char** argv) {
 			const size_t next = (i_rm + 1);
 		
 			if(svgContents[0] == ' ' || svgContents[0] == '\n') {
-			
 				cstrSlideBack(svgContents, 0, 1);
 				i_rm--;
 			}
 			else if(svgContents[lastChar] == ' ' || svgContents[lastChar] == '\n') {
-			
 				svgContents[lastChar] = '\0';
 				i_rm--;
 			}
 			else if((svgContents[i_rm] == ' ' && (svgContents[next] == ' ' || svgContents[next] == '<' || svgContents[next] == '>')) || svgContents[i_rm] == '\n') {
-			
 				cstrSlideBack(svgContents, i_rm, 1);
 				i_rm -= 2;
 			}
@@ -204,21 +191,17 @@ int main(int argc, char** argv) {
 		const size_t urlEncodedSize = ((3 * plainLen) + 1);
 		char* urlEncoded = (char*)malloc(urlEncodedSize);
 			memset(urlEncoded, 0, urlEncodedSize);
-		//	strncpy(urlencoded, svgContents, plainLen);
 		size_t i_enc = 0;
 		for(size_t i_ss = 0; i_ss < plainLen; i_ss++) {
 
 			bool chSwap = false;
 		
 			for(int i_sw = 0; i_sw < tableSize; i_sw++) {
-			
 				if(svgContents[i_ss] == swapTable[i_sw].from) {
-
 					strcat(urlEncoded, swapTable[i_sw].to);
 					i_enc += strlen(swapTable[i_sw].to);
 				
 					chSwap = true;
-
 					break;
 				}
 			}
@@ -315,7 +298,7 @@ size_t removeMeta(char* srcString, const char* trigger) {
 		const size_t seqStart = ((size_t)(tTagPos - srcString));
 
 		
-		//	detect attribute start marker: check if there is a '=' or '-' symbol after it
+		//	detect attribute start marker: check if there is a ['] or ["] symbol after it
 		char attrMarker = srcString[seqStart + strlen(tagSequence)];
 		if(attrMarker == '\"' || attrMarker == '\'') {
 
@@ -324,7 +307,7 @@ size_t removeMeta(char* srcString, const char* trigger) {
 				//	find where unwanted substring ends and cut it
 				if(srcString[i] == attrMarker) {
 
-					removalSize = (i - seqStart);
+					removalSize = (i - seqStart + 1);
 
 					size_t tailLen = (origStrLen - i);
 					char* strTail = (char*)malloc(tailLen + 1);
