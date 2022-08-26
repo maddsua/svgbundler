@@ -21,7 +21,7 @@ const size_t tableSize = (sizeof(swapTable) / sizeof(urlchar));
 const size_t metaTagsTableSize = (sizeof(metaTagsTable) / sizeof(metaTagsTable[0]));
 
 
-bool removeMeta(char* srcString, const char* trigger);
+size_t removeMeta(char* srcString, const char* trigger);
 char** tdArrPushStr(char** tdArray, size_t* itemsCount, const char* newItem);
 unsigned char* loadBinFile(const char* path, size_t* binSize);
 void cstrSlideBack(char* str, size_t pos, size_t count);
@@ -161,15 +161,18 @@ int main(int argc, char** argv) {
 		
 
 		//	remove meta tags and calc size difference
-		size_t initialLen = fileLength;
+		size_t reducedLen = fileLength;
 		if(optimize) {
-			
 			for(int i_mt = 0; i_mt < metaTagsTableSize; i_mt++) {
-
-				if(removeMeta(svgContents, metaTagsTable[i_mt])) i_mt--;
+				const size_t sizeDiff = removeMeta(svgContents, metaTagsTable[i_mt]);
+				if(sizeDiff > 0) {
+					i_mt--;
+					reducedLen -= sizeDiff;
+				}
 			}
 		}
-		float optimizedLenDiff = ((float)(initialLen - fileLength) / initialLen) * 100;
+		//	! you should not use strlen() or any null-ternimated function to tedermime a size of a binary data. But here, it's king of text data 😉
+		float optimizedPercent = ((float)(fileLength - reducedLen) / fileLength) * 100;
 	
 
 		// remove repeating whitespaces and any line breaks
@@ -257,7 +260,7 @@ int main(int argc, char** argv) {
 		
 		filesDone++;
 		
-		if(optimize) printf(" --> \"%s\" done (-%2.2f%%)\n", svgFilesList[i_fp], optimizedLenDiff);
+		if(optimize) printf(" --> \"%s\" done (-%2.2f%%)\n", svgFilesList[i_fp], optimizedPercent);
 			else printf(" --> \"%s\" done\n", svgFilesList[i_fp]);	
 		
 		free(urlEncoded);
@@ -294,7 +297,7 @@ int main(int argc, char** argv) {
 
 
 
-bool removeMeta(char* srcString, const char* trigger) {
+size_t removeMeta(char* srcString, const char* trigger) {
 	
 	//	find unwanted meta attribute
 	char tagSequence[metaTagsTableItem + 4];
@@ -306,6 +309,7 @@ bool removeMeta(char* srcString, const char* trigger) {
 	if(tTagPos != NULL) {
 
 		const size_t origStrLen = strlen(srcString);
+		size_t removalSize = 0;
 				
 		//	get trigger's position in a string
 		const size_t seqStart = ((size_t)(tTagPos - srcString));
@@ -319,6 +323,8 @@ bool removeMeta(char* srcString, const char* trigger) {
 
 				//	find where unwanted substring ends and cut it
 				if(srcString[i] == attrMarker) {
+
+					removalSize = (i - seqStart);
 
 					size_t tailLen = (origStrLen - i);
 					char* strTail = (char*)malloc(tailLen + 1);
@@ -335,12 +341,12 @@ bool removeMeta(char* srcString, const char* trigger) {
 			}
 			
 			// yes, we've removed that meta data
-			return true;
+			return removalSize;
 		}
 	}
 
-	//	no, there wasnt such a meta attribute
-	return false;
+	//	no, there was no such a meta attribute
+	return 0;
 }
 
 //	push_back() but for 2d array
