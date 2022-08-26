@@ -8,7 +8,7 @@ This code can be compiled for Linux or Mac with `#define PLATFORM_WIN32` comment
 
 ### Usage
 
-1. Open command line in directory that contains `.svg` files. If you don't specify any input files, on windows, it'll try to find them in current dir
+1. Open command line in directory that contains `.svg` files. If you don't specify any input files, on windows, it'll try to find them in the current dir
 2. Run `csvg`
 3. Observe `result.css` appering in that folder. It contains ready to use CSS code
 4. Use that code in your product
