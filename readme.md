@@ -1,6 +1,6 @@
 # SVG to CSS Encoder
 
-## URL encoder for SVG: fast tool written in C
+## URL encoder for SVG: a fast tool written in C
 
 [GitHub Repo](https://github.com/maddsua/svg-to-css-encoder)
 
@@ -61,6 +61,9 @@ Output file: `vector.css:`
 
 Please note, that the resulting `.css` file size fill be slightly larger, than original `.svg`. This happens due to a special character encoding, where one symbol `"` (quote sign) convert to a sequence of 3 symbols: `%22`. This conversion doesn't apply to every character, like alphanumeric ones that won't be converted
 
+## If something is broken
+
+If something is broken, this is probably because of size optimization features. This part of the program is probably cursed. Try to run again without it ( no `-s` key )
 
 ## Download
 
