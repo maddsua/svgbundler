@@ -6,15 +6,10 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include <windows.h>
+
 #include "csvg_data.h"
 #include "csvg_private.h"
-
-#define PLATFORM_WIN32
-
-
-#ifdef PLATFORM_WIN32
-	#include <windows.h>
-#endif
 
 
 const size_t tableSize = (sizeof(swapTable) / sizeof(urlchar));
@@ -86,7 +81,7 @@ int main(int argc, char** argv) {
 //	check svg source files
 	if(filesToProcess < 1) {
 	//	scan directory (only for M$ Шіндошс)
-	#ifdef PLATFORM_WIN32
+	#ifdef _WINDOWS_
 		//	look for .svg
 		WIN32_FIND_DATA data = {0};
     	HANDLE hFind = FindFirstFile("*.svg", &data);
@@ -108,7 +103,7 @@ int main(int argc, char** argv) {
 			return 0;
 		}
 	#endif
-	#ifndef PLATFORM_WIN32
+	#ifndef _WINDOWS_
 		printf("No SVG files specified. Use --help for more\n");
 		return 0;
 	#endif
