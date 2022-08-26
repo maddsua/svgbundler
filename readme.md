@@ -1,6 +1,6 @@
 # SVG to CSS Encoder
 
-## URL encoder for SVG: fast tool written in C
+## URL encoder for SVG: a fast tool written in C
 
 [GitHub Repo](https://github.com/maddsua/svg-to-css-encoder)
 
@@ -63,7 +63,7 @@ Please note, that the resulting `.css` file size fill be slightly larger, than o
 
 ## If something is broken
 
-If something is broken, this is probably because of size optimization features. This part of the program is probably cursed. Try to run again without it ( no `-s` key)
+If something is broken, this is probably because of size optimization features. This part of the program is probably cursed. Try to run again without it ( no `-s` key )
 
 ## Download
 
