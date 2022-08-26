@@ -14,7 +14,7 @@
 #define FILE_VERSION	"1.0.0.404"
 #define FILE_DESCRIPTION	"svg-to-css (url encoder)"
 #define INTERNAL_NAME	""
-#define LEGAL_COPYRIGHT	"https://gitlab.com/maddsua"
+#define LEGAL_COPYRIGHT	"https://github.com/maddsua"
 #define LEGAL_TRADEMARKS	"2022 maddsua/dev"
 #define ORIGINAL_FILENAME	"csvg"
 #define PRODUCT_NAME	""
