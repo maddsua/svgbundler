@@ -67,5 +67,5 @@ If something is broken, this is probably because of size optimization features. 
 
 ## Download
 
-[📦 Download app (exe file)](build/csvg-win64-b404.zip)
+[ Download app (exe file)](build/csvg-win64-b404.zip)
 
