@@ -42,6 +42,6 @@ const urlchar swapTable[] = {
 #define metaTagsTableItem 32
 
 const char metaTagsTable[][metaTagsTableItem] = {
-	 "xmlns:serif","serif:id","data-name","id"
+	 "xmlns:serif","serif:id","data-name"
 };
 
