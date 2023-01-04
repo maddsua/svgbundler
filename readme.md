@@ -1,10 +1,10 @@
-# SVG to CSS Encoder
+# SVG to CSS Encoder - Deprecated
 
-## URL encoder for SVG: a fast tool written in C
+### Assuming that bundling svg images is a part of web developer's work, you probably already have NodeJS installed, so you can check out a much better tool - [svgbundler](https://github.com/maddsua/svgbundler) (also available at [NPM](https://www.npmjs.com/package/@maddsua/svgbundler))
 
-[GitHub Repo](https://github.com/maddsua/svg-to-css-encoder)
+Yeah, writing it in C was cool as heck, but there is no point to prefer this version, as long as not trying to process a quadrillion files at once.
 
-This code can be compiled for Linux or Mac with `#include <windows.h>` commented or deleted.
+Just use JS version, it's much more handy.
 
 ### Usage
 
