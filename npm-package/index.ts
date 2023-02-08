@@ -114,7 +114,7 @@ const loadInputsFromPackage = () => {
 			if (typeof item.from !== 'string') return;
 			if (typeof item.to !== 'string') return;
 			if (typeof item.prefix !== 'string') item.prefix = null;
-			if (typeof item.override !== 'string') item.override = false;
+			if (typeof item.override !== 'boolean') item.override = false;
 	
 			//	decide where to put this Harry Potter
 			(styleSourceFile.test(item.from) ? sources.css : sources.svg).push(item);
@@ -283,7 +283,7 @@ const bundle_svg = (svgDir:_pathPair) => {
 			return;
 		}
 
-		writeContents += `${classname}, ${classname}-after::after, ${classname}-before::before {\r\n\tbackground-image: url(\"data:image/svg+xml,${encodeURIComponent(svgtext)}\");\r\n}\r\n`;
+		writeContents += `${classname}, ${classname}-after::after, ${classname}-before::before {\r\n\tbackground-image: url(\"data:image/svg+xml,${encodeURIComponent(svgtext)}\")${svgDir.override ? '!important' : ''};\r\n}\r\n`;
 
 		if (!flags.silent) console.log(` --> ${svgFile}`);
 		imagesLoaded++;
