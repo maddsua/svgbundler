@@ -15,7 +15,7 @@ Just use JS version, it's much more handy.
 5. ????
 6. Profit!
 
-<img src="info/screenshot.webp" style="width: 720px;"/>
+<img src="screenshot.webp" style="width: 720px;"/>
 
 
 ### Flags
@@ -65,6 +65,3 @@ Please note, that the resulting `.css` file size fill be slightly larger, than o
 
 If something is broken, this is probably because of size optimization features. This part of the program is probably cursed. Try to run again without it ( no `-s` key )
 
-## Download
-
-[👉 Download app (exe file)](build/csvg-win64-b404.zip)
