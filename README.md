@@ -34,6 +34,26 @@ We do that so our apps don't make hundreds of http requests just to load UI icon
 
 	Note that paths are relative, `/` will resolve to the directory, from which nodejs was called, being project root in most cases.
 
+### NEW:
+
+You can now specify files directly in package.json:
+
+`
+
+	...
+	"svgbundler": {
+		"files": [
+			{
+				"from": "test/assets",
+				"to": "test/public/countries.css",
+				"override": true,
+				"prefix": "ccode"
+			}
+		]
+	}
+	...
+`
+
 ## Flag arguments
 
 1. `--minify` | `-m` : Remove unnecessary meta attributes from svg
