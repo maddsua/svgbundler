@@ -47,7 +47,8 @@ You can now specify files directly in package.json:
 				"from": "test/assets",
 				"to": "test/public/countries.css",
 				"override": true,
-				"prefix": "ccode"
+				"prefix": "ccode",
+				"selector": "valid"
 			}
 		]
 	}

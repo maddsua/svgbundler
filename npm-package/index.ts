@@ -96,7 +96,8 @@ interface _pathPair {
 	from: string,
 	to: string,
 	override?: boolean,
-	prefix?: string
+	prefix?: string,
+	selector?: string
 };
 const sources = {
 	svg: Array<_pathPair>(0),
@@ -114,6 +115,7 @@ const loadInputsFromPackage = () => {
 			if (typeof item.from !== 'string') return;
 			if (typeof item.to !== 'string') return;
 			if (typeof item.prefix !== 'string') item.prefix = null;
+			if (typeof item.selector !== 'string') item.prefix = null;
 			if (typeof item.override !== 'boolean') item.override = false;
 	
 			//	decide where to put this Harry Potter
@@ -283,7 +285,9 @@ const bundle_svg = (svgDir:_pathPair) => {
 			return;
 		}
 
-		writeContents += `${classname}, ${classname}-after::after, ${classname}-before::before {\r\n\tbackground-image: url(\"data:image/svg+xml,${encodeURIComponent(svgtext)}\")${svgDir.override ? '!important' : ''};\r\n}\r\n`;
+		writeContents += svgDir.selector ? `${classname}:${svgDir.selector}` : `${classname}, ${classname}-after::after, ${classname}-before::before`;
+
+		writeContents += ` {\r\n\tbackground-image: url(\"data:image/svg+xml,${encodeURIComponent(svgtext)}\")${svgDir.override ? '!important' : ''};\r\n}\r\n`;
 
 		if (!flags.silent) console.log(` --> ${svgFile}`);
 		imagesLoaded++;

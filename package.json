@@ -1,6 +1,6 @@
 {
 	"name": "@maddsua/svgbundler",
-	"version": "1.4.2",
+	"version": "1.4.3",
 	"description": "Bundles separate .svg images to a single .css file",
 	"type": "module",
 	"bin": {
@@ -39,8 +39,8 @@
 			{
 				"from": "test/assets",
 				"to": "test/public/countries.css",
-				"override": true,
-				"prefix": "ccode"
+				"prefix": "countrycode",
+				"selector": "valid"
 			}
 		]
 	}
