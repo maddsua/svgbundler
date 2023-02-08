@@ -1,8 +1,6 @@
 # svgbundler | The old C version is [here](/c-cli/)
 
-This repo contains my old svg bundler that is written in C, and the newer npm package that does the same thing.
-
-Basically it takes a bunch of vector images and embeds them into single (or multiple) `.css` files.
+Basically, it takes a bunch of vector images and embedds them into single `.css` file.
 
 We do that so our apps don't make hundreds of http requests just to load UI icons.
 
@@ -38,22 +36,21 @@ We do that so our apps don't make hundreds of http requests just to load UI icon
 
 You can now specify files directly in package.json:
 
-`
-
-	...
-	"svgbundler": {
-		"files": [
-			{
-				"from": "test/assets",
-				"to": "test/public/countries.css",
-				"override": true,
-				"prefix": "ccode",
-				"selector": "valid"
-			}
-		]
-	}
-	...
-`
+```
+...
+"svgbundler": {
+    "files": [
+        {
+            "from": "test/assets",
+            "to": "test/public/countries.css",
+            "override": true,
+            "prefix": "ccode",
+            "selector": "valid"
+        }
+    ]
+}
+...
+```
 
 ## Flag arguments
 
@@ -71,6 +68,8 @@ You can now specify files directly in package.json:
 
 6. `--silent` | `-s` : Don't list all the input filed, silent mode
 
+7. `--package` | `-p` : Load files from package.json (format specified above)
+
 
 ---
 ## See tests directory for more
@@ -78,6 +77,6 @@ You can now specify files directly in package.json:
 
 `npm test` command is also available
 
-...and a screenshot of it working in watch mode as a cherry on a pie:
+...and a screenshot of it working in watch mode as a cherry on top:
 
 <img src="cool-pics/watchmode.png"/>

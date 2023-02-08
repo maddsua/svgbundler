@@ -115,7 +115,7 @@ const loadInputsFromPackage = () => {
 			if (typeof item.from !== 'string') return;
 			if (typeof item.to !== 'string') return;
 			if (typeof item.prefix !== 'string') item.prefix = null;
-			if (typeof item.selector !== 'string') item.prefix = null;
+			if (typeof item.selector !== 'string') item.selector = null;
 			if (typeof item.override !== 'boolean') item.override = false;
 	
 			//	decide where to put this Harry Potter

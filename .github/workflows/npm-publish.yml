@@ -1,12 +1,11 @@
-
+# This should only run when package.json is changed
+# I just don't get what's wrong here
 name: Publish NPM Package
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    types:
-      - closed
+    paths:
+      - 'package.json'
 
 jobs:
   publish:
