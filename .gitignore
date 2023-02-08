@@ -1,10 +1,7 @@
-
-*.layout
 *.res
 *.o
-*.svg
-*.css
-*.win
 *.rc
 *.exe
 .vscode/
+node_modules/
+bin/

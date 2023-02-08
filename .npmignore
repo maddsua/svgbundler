@@ -1,0 +1,7 @@
+# .npmignore
+.github/
+node_modules/
+tsconfig.json
+test/
+c-cli/
+npm-package/
