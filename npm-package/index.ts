@@ -16,6 +16,7 @@ import fs from 'fs';
 const minSvgLength = 32;
 const fsWatch_evHold = 100;
 const maxSearchDepth = 32;
+const styleSourceFile = /\.(s?)css$/;
 
 
 /*
@@ -93,13 +94,36 @@ const pushPreClass = (arg:string, argpatt:string) => {
 */
 interface _pathPair {
 	from: string,
-	to: string
+	to: string,
+	override?: boolean,
+	prefix?: string
 };
 const sources = {
 	svg: Array<_pathPair>(0),
 	css: Array<_pathPair>(0)
 };
 const loadInputsFromPackage = () => {
+
+	try {
+		const packagejsonFilesList = JSON.parse(new TextDecoder().decode(new Uint8Array(fs.readFileSync('./package.json'))))['svgbundler']['files'];
+
+		if (typeof packagejsonFilesList !== 'object') throw 'No files wtf bro';
+
+		packagejsonFilesList.forEach((item:_pathPair) => {
+			//	perform checks
+			if (typeof item.from !== 'string') return;
+			if (typeof item.to !== 'string') return;
+			if (typeof item.prefix !== 'string') item.prefix = null;
+			if (typeof item.override !== 'string') item.override = false;
+	
+			//	decide where to put this Harry Potter
+			(styleSourceFile.test(item.from) ? sources.css : sources.svg).push(item);
+		});
+
+	} catch (error) {
+		console.warn('No valid svgbundler directives in package json');
+		return;
+	}
 
 };
 
@@ -124,9 +148,12 @@ process.argv.forEach((arg) => {
 			if (!(new RegExp(`^${validPath.source}\\:${validPath.source}$`,'g')).test(arg)) return;
 		const match = arg.match(validPath);
 			if (match?.length !== 2) return false;
-		(match[0].match(/\.(s?)css$/) ? sources.css : sources.svg).push({from: normalizePath(match[0]), to: normalizePath(match[1])});
+		(match[0].match(styleSourceFile) ? sources.css : sources.svg).push({from: normalizePath(match[0]), to: normalizePath(match[1])});
 	})();
 });
+
+//	if enabled, load sources from package.json
+if (flags.loadFromPackage) loadInputsFromPackage();
 
 
 /*
@@ -243,7 +270,10 @@ const bundle_svg = (svgDir:_pathPair) => {
 				if (temp.includes('.')) temp = temp.slice(0, temp.indexOf('.'));
 				if (temp.startsWith('/')) temp = temp.slice(1);
 				if (flags.flatten) temp = temp.replace(/-/g, '_');
-			return `.${classPrefixText}${temp.replace(/[\/]{1,}|[\\]{1,}/g, '-')}`;
+
+			let classPrefix = svgDir.prefix ? svgDir.prefix : classPrefixText;
+				if (classPrefix.length) classPrefix += '-';
+			return `.${classPrefix}${temp.replace(/[\/]{1,}|[\\]{1,}/g, '-')}`;
 		})();
 
 		if (flags.optimize) svgtext = minify(svgtext);
