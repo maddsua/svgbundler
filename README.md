@@ -77,3 +77,7 @@ You can now specify files directly in package.json:
 [📂 tests here](test/)
 
 `npm test` command is also available
+
+...and a screenshot of it working in watch mode as a cherry on a pie:
+
+<img src="cool-pics/watchmode.png"/>

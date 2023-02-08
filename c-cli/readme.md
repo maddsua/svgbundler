@@ -1,6 +1,8 @@
 # SVG to CSS Encoder - Deprecated
 
-### Assuming that bundling svg images is a part of web developer's work, you probably already have NodeJS installed, so you can check out a much better tool - [svgbundler](https://github.com/maddsua/svgbundler) (also available at [NPM](https://www.npmjs.com/package/@maddsua/svgbundler))
+### Assuming that bundling svg images is a part of web developer's work, you probably already have NodeJS installed, so you can check out a much better tool - [svgbundler the NPM package](https://www.npmjs.com/package/@maddsua/svgbundler)
+
+---
 
 Yeah, writing it in C was cool as heck, but there is no point to prefer this version, as long as not trying to process a quadrillion files at once.
 
@@ -15,7 +17,7 @@ Just use JS version, it's much more handy.
 5. ????
 6. Profit!
 
-<img src="screenshot.webp" style="width: 720px;"/>
+<img src="../cool-pics/old-cli.webp" style="width: 720px;"/>
 
 
 ### Flags

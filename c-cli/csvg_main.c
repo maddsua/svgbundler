@@ -67,7 +67,7 @@ void cstrSlideBack(char* str, size_t pos, size_t count);
 
 int main(int argc, char** argv) {
 	
-	printf("\nSVG to CSS Encoder v%i\n\n", PRODUCT_VERSION);
+	printf("\nSVG to CSS Encoder v%s\n\n", PRODUCT_VERSION);
 	
 	char** svgFilesList;
 	size_t filesToProcess = 0;
