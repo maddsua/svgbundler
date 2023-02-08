@@ -2,8 +2,8 @@
 
 /*
 
-    CopyLeft 2022 maddsua
-    https://github.com/maddsua/
+    CopyLeft 2023 maddsua
+    https://github.com/maddsua/svgbundler
     License - No license (specified MIT but not really)
     Use it however you want
     I don't guarantee anything, but at very least, this package is safe from dependency-related security issues
@@ -17,11 +17,13 @@ const minSvgLength = 32;
 const fsWatch_evHold = 100;
 const maxSearchDepth = 32;
 
+
+/*
+	Console stuff
+*/
 const printTime = () => {
 	console.log(`[${new Date().toLocaleTimeString()}]`);
 };
-
-//	colors in console
 const colorText = (text: string, color: string | null, style: string | null) => {
 	const table = {
 		black: '\x1b[30m',
@@ -45,6 +47,10 @@ const colorText = (text: string, color: string | null, style: string | null) => 
 	return (table[color] || table.white) + (styles[style] || '') + text + '\x1b[0m';
 };
 
+
+/*
+	File path stuff
+*/
 const normalizePath = (path:string) => {
 	let temp = path.replace(/(\/\/)|(\\\\)|(\\)/g, '/');
 
@@ -60,7 +66,18 @@ const separatePath = (path:string) => {
 	return { dir: pathDir, file: pathFile };
 };
 
-//	additional settings
+
+/*
+	Flags and other stuff
+*/
+const flags = {
+	optimize: false,
+	watch: false,
+	silent: false,
+	recursive: false,
+	flatten: false,
+	loadFromPackage: false
+};
 let classPrefixText = '';
 const pushPreClass = (arg:string, argpatt:string) => {
 	if (!arg.startsWith(argpatt)) return false;
@@ -70,8 +87,10 @@ const pushPreClass = (arg:string, argpatt:string) => {
 	return true;
 };
 
-//	stuff to get input paths
 
+/*
+	Stuff to get input paths
+*/
 interface _pathPair {
 	from: string,
 	to: string
@@ -80,17 +99,14 @@ const sources = {
 	svg: Array<_pathPair>(0),
 	css: Array<_pathPair>(0)
 };
+const loadInputsFromPackage = () => {
 
-//	flags
-const flags = {
-	optimize: false,
-	watch: false,
-	silent: false,
-	recursive: false,
-	flatten: false
 };
 
-//	process start arguments
+
+/*
+	Process start arguments
+*/
 process.argv.forEach((arg) => {
 
 	pushPreClass(arg, '--prefix=');
@@ -100,6 +116,7 @@ process.argv.forEach((arg) => {
 	if (arg === '--minify' || arg === '-m') flags.optimize = true;
 	if (arg === '--watch' || arg === '-w') flags.watch = true;
 	if (arg === '--flags.silent' || arg === '-s') flags.silent = true;
+	if (arg === '--package' || arg === '-p') flags.loadFromPackage = true;
 
 	//	add sources
 	(() => {
@@ -111,16 +128,28 @@ process.argv.forEach((arg) => {
 	})();
 });
 
+
+/*
+	Check if any files are added to queeu
+*/
 if (!(sources.css.length + sources.svg.length)) {
 	console.error(colorText('Specify at least one input directory+destination file or a .css to bundle', 'red', null), '\r\n');
 	console.error(colorText(' Build aborted ', 'red', 'reverse'));
 	process.exit(1);
 }
 
+
+/*
+	Notify that we will add prefixes
+*/
 if (classPrefixText.length) {
 	console.log('Prefix', colorText(classPrefixText, 'yellow', null), 'will be added to all the classes\r\n');
 }
 
+
+/*
+	Stuff to find files
+*/
 const findAllFiles = (inDirectory:string, format:string, recursive:boolean) => {
 
 	let results = Array<string>(0);
@@ -151,6 +180,10 @@ const findAllFiles = (inDirectory:string, format:string, recursive:boolean) => {
 	return results;
 };
 
+
+/*
+	Stuff to minify files
+*/
 const minify = (xml:string) => {
 
 	const regexes = {
@@ -187,6 +220,10 @@ const minify = (xml:string) => {
 	return xml;
 };
 
+
+/*
+	Stuff to do the job
+*/
 const bundle_svg = (svgDir:_pathPair) => {
 	console.log(colorText(`Compiling to ${svgDir.to} `, 'green', null));
 
@@ -235,6 +272,10 @@ const bundle_svg = (svgDir:_pathPair) => {
 		else  console.log(colorText('...done', 'green', null), '\r\n');
 };
 
+
+/*
+	Stuff to do the job a lil differently
+*/
 const bundle_css = (file:_pathPair) => {
 	console.log(colorText(`Bundling ${file.from} to ${file.to} `, 'green', null));
 
@@ -282,6 +323,10 @@ const bundle_css = (file:_pathPair) => {
 	} else console.log(colorText('...nothing to do here', 'yellow', null), '\r\n');
 }
 
+
+/*
+	Add watchdogs for svg sources
+*/
 sources.svg.forEach((item) => {
 	bundle_svg(item);
 	if (flags.watch) {
@@ -296,6 +341,11 @@ sources.svg.forEach((item) => {
 		});
 	}
 });
+
+
+/*
+	Add watchdogs for css sources
+*/
 sources.css.forEach((item) => {
 	bundle_css(item);
 	if (flags.watch) {
@@ -319,4 +369,8 @@ sources.css.forEach((item) => {
 	}
 });
 
+
+/*
+	Report and call it a day
+*/
 if (flags.watch) console.log('\r\n', colorText(' Watching for file changes ', 'green', 'reverse'), '\r\n');
