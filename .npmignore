@@ -1,6 +1,7 @@
 # .npmignore
-.github/
-node_modules/
+.github/**
+node_modules/**
 tsconfig.json
-c-cli/
-npm-package/
+c-cli/**
+cool-pics/**
+npm-package/**
