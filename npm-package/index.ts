@@ -185,6 +185,8 @@ const findAllFiles = (inDirectory:string, format:string, recursive:boolean) => {
 	let nested = -1;	//	(0 - 1) so on the first run the nesting will be equal to zero
 
 	const dir_search = (searchDir:string) => {	
+		nested++;
+
 		if (!fs.existsSync(searchDir)) {
 			console.error(colorText(`Directory '${searchDir}' does not exist`, 'red', 'reverse'));
 			return;
@@ -194,15 +196,11 @@ const findAllFiles = (inDirectory:string, format:string, recursive:boolean) => {
 			const filePath = `${searchDir}/${file}`;
 			const stat = fs.lstatSync(filePath);
 	
-			if (stat.isDirectory()) {
-				nested++;
-				if (nested < maxSearchDepth) {
-					dir_search(filePath);
-					nested--;
-				}
-			}
-			else if (filePath.endsWith(`.${format}`)) results.push(filePath);
-		})
+			if (stat.isDirectory() && nested < maxSearchDepth) dir_search(filePath); 
+				else if (filePath.endsWith(`.${format}`)) results.push(filePath);
+		});
+
+		nested--;
 	};
 	dir_search(inDirectory);
 	
