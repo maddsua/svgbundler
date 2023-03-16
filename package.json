@@ -1,6 +1,6 @@
 {
 	"name": "@maddsua/svgbundler",
-	"version": "1.5.0",
+	"version": "1.6.0",
 	"description": "Bundles separate .svg images to a single .css file",
 	"type": "module",
 	"bin": {
@@ -12,8 +12,8 @@
 	},
 	"scripts": {
 		"build": "tsc",
-		"test": "node ./dist/main.js -m -r -f -s /test/src/form:test/public/ui.css test/src/style.css:test/public/style.css",
-		"watch": "node ./dist/main.js -m -r -f -w test/public/ui.css:test/public/ui.css test/src/style.css:test/public/style.css"
+		"test": "node ./dist/main.js -m -f -s /test/src/form:test/public/ui.css test/src/style.css:test/public/style.css",
+		"watch": "node ./dist/main.js -m -f -w test/public/ui.css:test/public/ui.css test/src/style.css:test/public/style.css"
 	},
 	"keywords": [
 		"svg",
@@ -35,6 +35,8 @@
 		"typescript": "^4.9.4"
 	},
 	"dependencies": {
-		"@maddsua/webappkit": "^0.3.8"
+		"@maddsua/webappkit": "^0.3.8",
+		"chalk": "^5.2.0",
+		"glob": "^9.3.0"
 	}
 }

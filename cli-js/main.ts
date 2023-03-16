@@ -11,13 +11,14 @@
 */
 
 import fs from 'fs';
+import { globSync } from 'glob';
+import chalk from 'chalk';
 
 import { separatePath, normalizePath } from '@maddsua/webappkit/textutils';
 
 
 const minSvgLength = 32;
 const fsWatch_evHold = 100;
-const maxSearchDepth = 32;
 const styleSourceFile = /\.s?css$/;
 
 
@@ -26,28 +27,6 @@ const styleSourceFile = /\.s?css$/;
 */
 const printTime = () => {
 	console.log(`[${new Date().toLocaleTimeString()}]`);
-};
-const colorText = (text: string, color: string | null, style: string | null) => {
-	const table = {
-		black: '\x1b[30m',
-		red: '\x1b[31m',
-		green: '\x1b[32m',
-		yellow: '\x1b[33m',
-		blue: '\x1b[34m',
-		magenta: '\x1b[35m',
-		cyan: '\x1b[36m',
-		white: '\x1b[37m'
-	};
-	const styles = {
-		bright: '\x1b[1m',
-		dim: '\x1b[2m',
-		underscore: '\x1b[4m',
-		blink: '\x1b[5m',
-		reverse: '\x1b[7m',
-		hidden: '\x1b[8m'
-	};
-
-	return (table[color] || table.white) + (styles[style] || '') + text + '\x1b[0m';
 };
 
 
@@ -58,7 +37,6 @@ const flags = {
 	optimize: false,
 	watch: false,
 	silent: false,
-	recursive: false,
 	flatten: false,
 	loadFromPackage: false
 };
@@ -129,7 +107,6 @@ process.argv.forEach((arg) => {
 
 	pushPreClass(arg, '--prefix=');
 
-	if (arg === '--recursive' || arg === '-r') flags.recursive = true;
 	if (arg === '--flatten' || arg === '-f') flags.flatten = true;
 	if (arg === '--minify' || arg === '-m') flags.optimize = true;
 	if (arg === '--watch' || arg === '-w') flags.watch = true;
@@ -157,8 +134,8 @@ parseInputsJSON('./svgbundler.config.json');
 	Check if any files are added to queeu
 */
 if (!(sources.css.length + sources.svg.length)) {
-	console.error(colorText('Specify at least one input directory+destination file or a .css to bundle', 'red', null), '\r\n');
-	console.error(colorText(' Build aborted ', 'red', 'reverse'));
+	console.error(chalk.red('Specify at least one input directory+destination file or a .css to bundle'), '\r\n');
+	console.error(chalk.bgRed(' Build aborted '));
 	process.exit(1);
 }
 
@@ -167,42 +144,8 @@ if (!(sources.css.length + sources.svg.length)) {
 	Notify that we will add prefixes
 */
 if (classPrefixText.length) {
-	console.log('Prefix', colorText(classPrefixText, 'yellow', null), 'will be added to all the classes\r\n');
+	console.log('Prefix', chalk.yellow(classPrefixText), 'will be added to all the classes\r\n');
 }
-
-
-/*
-	Stuff to find files
-*/
-const findAllFiles = (inDirectory: string, format: string, recursive: boolean) => {
-
-	let results: string[] = [];
-	
-	//	(0 - 1) so on the first run the nesting will be equal to zero
-	let nested = recursive ? -1 : (maxSearchDepth + 1);
-
-	const dir_search = (searchDir: string) => {	
-		nested++;
-
-		if (!fs.existsSync(searchDir)) {
-			console.error(colorText(`Directory '${searchDir}' does not exist`, 'red', 'reverse'));
-			return;
-		}
-
-		fs.readdirSync(searchDir).forEach((file) => {
-			const filePath = `${searchDir}/${file}`;
-			const stat = fs.lstatSync(filePath);
-	
-			if (stat.isDirectory() && nested < maxSearchDepth) dir_search(filePath); 
-				else if (filePath.endsWith(`.${format}`)) results.push(filePath);
-		});
-
-		nested--;
-	};
-	dir_search(inDirectory);
-	
-	return results;
-};
 
 
 /*
@@ -249,16 +192,19 @@ const minify = (xml:string) => {
 	Stuff to do the job
 */
 const bundle_svg = (svgDir:i_pathPair) => {
-	console.log(colorText(`Compiling to ${svgDir.to} `, 'green', null));
+	console.log(chalk.green(`Compiling to ${svgDir.to} `));
 
 	let writeContents = '';
 	let imagesLoaded = 0;
 
-	findAllFiles(svgDir.from, 'svg', flags.recursive).forEach((svgFile) => {
+	globSync(`${svgDir.from}/**/*.svg`).forEach((svgFile) => {
+
+		svgFile = normalizePath(svgFile);
+
 		let svgtext = '';
 		try { svgtext = fs.readFileSync(svgFile, {encoding: 'utf8'}) }
 		catch (error) {
-			console.warn(colorText(' Cant\'t read file:', 'red', null), svgFile);
+			console.warn(chalk.red(' Cant\'t read file:'), svgFile);
 			return '';
 		}
 
@@ -276,7 +222,7 @@ const bundle_svg = (svgDir:i_pathPair) => {
 		if (flags.optimize) svgtext = minify(svgtext);
 
 		if (svgtext.length < minSvgLength) {
-			console.warn(colorText(` -! ${svgFile}`, 'yellow', null), '\r\n');
+			console.warn(chalk.yellow(` -! ${svgFile}`), '\r\n');
 			return;
 		}
 
@@ -289,7 +235,7 @@ const bundle_svg = (svgDir:i_pathPair) => {
 	});
 
 	if (writeContents.length < minSvgLength) {
-		console.warn(colorText('No svgs bundled', 'yellow', null), '\r\n');
+		console.warn(chalk.yellow('No svgs bundled'), '\r\n');
 		return;
 	}
 
@@ -297,8 +243,8 @@ const bundle_svg = (svgDir:i_pathPair) => {
 		if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
 	fs.writeFileSync(svgDir.to, writeContents, {encoding: 'utf8'});
 
-	if (flags.silent) console.log(colorText(`+ ${imagesLoaded} images`, 'green', null), '\r\n');
-		else  console.log(colorText('...done', 'green', null), '\r\n');
+	if (flags.silent) console.log(chalk.green(`+ ${imagesLoaded} images`), '\r\n');
+		else  console.log(chalk.green('...done'), '\r\n');
 };
 
 
@@ -306,12 +252,12 @@ const bundle_svg = (svgDir:i_pathPair) => {
 	Stuff to do the job a lil differently
 */
 const bundle_css = (file: i_pathPair) => {
-	console.log(colorText(`Bundling ${file.from} to ${file.to} `, 'green', null));
+	console.log(chalk.green(`Bundling ${file.from} to ${file.to} `));
 
 	let cssText = '';
 	try { cssText = fs.readFileSync(file.from, {encoding: 'utf-8'}) }
 	catch (error) { 
-		console.warn(colorText(' Cannot read: ', 'yellow', 'reverse'), colorText(file.from, 'yellow', null));
+		console.warn(chalk.bgYellow(' Cannot read: '), chalk.yellow(file.from));
 		return;
 	}
 
@@ -334,7 +280,7 @@ const bundle_css = (file: i_pathPair) => {
 		try { 
 			svgtext = fs.readFileSync(fsReadPath, {encoding: 'utf-8'});
 		} catch (error) { 
-			console.warn(colorText(` -! ${fsReadPath}`, 'yellow', null));
+			console.warn(chalk.yellow(` -! ${fsReadPath}`));
 			return;
 		}
 
@@ -353,10 +299,10 @@ const bundle_css = (file: i_pathPair) => {
 	fs.writeFileSync(file.to, cssText, {encoding: 'utf8'});
 
 	if (imagesLoaded) {
-		if (flags.silent) console.log(colorText(`+ ${imagesLoaded} images`, 'green', null), '\r\n');
-			else console.log(colorText('...done', 'green', null), '\r\n');
+		if (flags.silent) console.log(chalk.green(`+ ${imagesLoaded} images`), '\r\n');
+			else console.log(chalk.green('...done'), '\r\n');
 		
-	} else console.log(colorText('...nothing to do here', 'yellow', null), '\r\n');
+	} else console.log(chalk.yellow('...nothing to do here'), '\r\n');
 }
 
 
@@ -409,4 +355,4 @@ sources.css.forEach((item) => {
 /*
 	Report and call it a day
 */
-if (flags.watch) console.log('\r\n', colorText(' Watching for file changes ', 'green', 'reverse'), '\r\n');
+if (flags.watch) console.log('\r\n', chalk.bgGreen(' Watching for file changes '), '\r\n');

@@ -80,11 +80,9 @@ Or in `svgbundler.json`:
 
 4. `--watch` | `-w` : Watch for file changes
 
-5. `--recursive` | `-r` : Recursive directory search
+5. `--silent` | `-s` : Don't list all the input filed, silent mode
 
-6. `--silent` | `-s` : Don't list all the input filed, silent mode
-
-7. `--package` | `-p` : Load files from package.json (format specified above)
+6. `--package` | `-p` : Load files from package.json (format specified above)
 
 
 ---
