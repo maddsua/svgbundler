@@ -6,9 +6,10 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include <windows.h>
+#include "private.h"
 
-#include "csvg_private.h"
+//	comment if not on windows
+#include <windows.h>
 
 typedef struct _urlchar {
 	char from;

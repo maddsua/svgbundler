@@ -1,19 +1,15 @@
 {
 	"compilerOptions": {
-		"lib": ["DOM", "ES5", "ES6", "ESNext"],
+		"lib": ["DOM", "ESNext"],
 		"target": "ESNext",
 		"typeRoots": [
 			"node_modules/@types"
 		],
-		"rootDir": "npm-package/",
-		"outDir": "bin/",
+		"rootDir": "cli-js/",
+		"outDir": "dist/",
 		"module": "NodeNext",
-		"resolveJsonModule": true,
-		"moduleResolution": "NodeNext",
-		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true,
-		"allowSyntheticDefaultImports": true,
 		"declaration": false,
-		"sourceMap": false
+		"sourceMap": false,
+		"resolveJsonModule": true
 	}
 }

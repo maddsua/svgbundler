@@ -1,8 +1,9 @@
 # .npmignore
 .github/**
 node_modules/**
-tsconfig.json
-c-cli/**
 cool-pics/**
-npm-package/**
+tsconfig.json
+cli-c/**
+cli-js/**
+test/**
 **.tgz

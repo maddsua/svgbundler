@@ -4,6 +4,14 @@ Basically, it takes a bunch of vector images and embedds them into single `.css`
 
 We do that so our apps don't make hundreds of http requests just to load UI icons.
 
+Just like this:
+
+`background-image: url(/test/src/svgs/map-marker.svg)`
+
+... becomes ...
+
+`background-image: url("data:image/svg+xml...");`
+
 ## How to use
 
 1. Install
@@ -50,6 +58,14 @@ You can now specify files directly in package.json:
     ]
 }
 ...
+```
+
+Or in `svgbundler.json`:
+
+```
+{
+	"files": [...]
+}
 ```
 
 ## Flag arguments

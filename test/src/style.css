@@ -5,3 +5,7 @@
 .icon {
 	background-image: url(/test/src/svgs/map-marker.svg);
 }
+
+.ascending-path {
+	background-image: url(../assets/at.svg);
+}

@@ -12,11 +12,13 @@
 
 import fs from 'fs';
 
+import { separatePath, normalizePath } from '@maddsua/webappkit/textutils';
+
 
 const minSvgLength = 32;
 const fsWatch_evHold = 100;
 const maxSearchDepth = 32;
-const styleSourceFile = /\.(s?)css$/;
+const styleSourceFile = /\.s?css$/;
 
 
 /*
@@ -50,25 +52,6 @@ const colorText = (text: string, color: string | null, style: string | null) => 
 
 
 /*
-	File path stuff
-*/
-const normalizePath = (path:string) => {
-	let temp = path.replace(/(\/\/)|(\\\\)|(\\)/g, '/');
-
-	if (temp[0] === '.') temp = temp.substring(1);
-	if (temp[0] === '/') temp = temp.substring(1);
-	if (temp.slice(-1) === '/') temp = temp.slice(0, -1); 
-
-	return temp;
-};
-const separatePath = (path:string) => {
-	const pathDir = path.match(/^.*\//)[0] || './';
-	const pathFile = pathDir.length > 1 ? path.substring(pathDir.length) : path;
-	return { dir: pathDir, file: pathFile };
-};
-
-
-/*
 	Flags and other stuff
 */
 const flags = {
@@ -92,7 +75,7 @@ const pushPreClass = (arg:string, argpatt:string) => {
 /*
 	Stuff to get input paths
 */
-interface _pathPair {
+interface i_pathPair {
 	from: string,
 	to: string,
 	override?: boolean,
@@ -100,17 +83,24 @@ interface _pathPair {
 	selector?: string
 };
 const sources = {
-	svg: Array<_pathPair>(0),
-	css: Array<_pathPair>(0)
+	svg: Array<i_pathPair>(0),
+	css: Array<i_pathPair>(0)
 };
-const loadInputsFromPackage = () => {
+
+
+const parseInputsJSON = (jsonFilePath: string) => {
 
 	try {
-		const packagejsonFilesList = JSON.parse(new TextDecoder().decode(new Uint8Array(fs.readFileSync('./package.json'))))['svgbundler']['files'];
 
-		if (typeof packagejsonFilesList !== 'object') throw 'No files wtf bro';
+		const jsonDataFile = JSON.parse(new TextDecoder().decode(new Uint8Array(fs.readFileSync(jsonFilePath))));
 
-		packagejsonFilesList.forEach((item:_pathPair) => {
+		if (typeof jsonDataFile !== 'object') throw 'No files wtf bro';
+
+		const bundlerBlock = ('svgbundler' in jsonDataFile) ? jsonDataFile['svgbundler'] : jsonDataFile;
+
+		const bundlerFilesList = bundlerBlock['files'];
+
+		bundlerFilesList.forEach((item: i_pathPair) => {
 			//	perform checks
 			if (typeof item.from !== 'string') return;
 			if (typeof item.to !== 'string') return;
@@ -122,12 +112,14 @@ const loadInputsFromPackage = () => {
 			(styleSourceFile.test(item.from) ? sources.css : sources.svg).push(item);
 		});
 
+		
 	} catch (error) {
-		console.warn('No valid svgbundler directives in package json');
-		return;
+		console.log('No inputs loaded from', jsonFilePath);
+		return true;
 	}
 
-};
+	return true;
+}
 
 
 /*
@@ -155,7 +147,10 @@ process.argv.forEach((arg) => {
 });
 
 //	if enabled, load sources from package.json
-if (flags.loadFromPackage) loadInputsFromPackage();
+if (flags.loadFromPackage) parseInputsJSON('./package.json');
+
+//	and by default try to get them from own config file
+parseInputsJSON('./svgbundler.config.json');
 
 
 /*
@@ -179,12 +174,14 @@ if (classPrefixText.length) {
 /*
 	Stuff to find files
 */
-const findAllFiles = (inDirectory:string, format:string, recursive:boolean) => {
+const findAllFiles = (inDirectory: string, format: string, recursive: boolean) => {
 
-	let results = Array<string>(0);
-	let nested = -1;	//	(0 - 1) so on the first run the nesting will be equal to zero
+	let results: string[] = [];
+	
+	//	(0 - 1) so on the first run the nesting will be equal to zero
+	let nested = recursive ? -1 : (maxSearchDepth + 1);
 
-	const dir_search = (searchDir:string) => {	
+	const dir_search = (searchDir: string) => {	
 		nested++;
 
 		if (!fs.existsSync(searchDir)) {
@@ -251,7 +248,7 @@ const minify = (xml:string) => {
 /*
 	Stuff to do the job
 */
-const bundle_svg = (svgDir:_pathPair) => {
+const bundle_svg = (svgDir:i_pathPair) => {
 	console.log(colorText(`Compiling to ${svgDir.to} `, 'green', null));
 
 	let writeContents = '';
@@ -296,7 +293,7 @@ const bundle_svg = (svgDir:_pathPair) => {
 		return;
 	}
 
-	const destDir = separatePath(normalizePath(svgDir.to)).dir;
+	const destDir = separatePath(svgDir.to).dir;
 		if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
 	fs.writeFileSync(svgDir.to, writeContents, {encoding: 'utf8'});
 
@@ -308,7 +305,7 @@ const bundle_svg = (svgDir:_pathPair) => {
 /*
 	Stuff to do the job a lil differently
 */
-const bundle_css = (file:_pathPair) => {
+const bundle_css = (file: i_pathPair) => {
 	console.log(colorText(`Bundling ${file.from} to ${file.to} `, 'green', null));
 
 	let cssText = '';
@@ -321,16 +318,23 @@ const bundle_css = (file:_pathPair) => {
 	const regexes = {
 		bgimgOpen: /url\([\'\"]*/,
 		bgimgClose: /[\'\"]*\)/,
-		svgPath: /([\w\d\\\/\.\-\_]+\.svg)/
+		svgPath: /([\w\d\\\/\.\-\_]+\.svg)/,
+		ascend: /^\.\./
 	};
 
 	let imagesLoaded = 0;
 	cssText.match(new RegExp(regexes.bgimgOpen.source + regexes.svgPath.source + regexes.bgimgClose.source, 'g'))?.forEach((image) => {
-		let imgPath = normalizePath(image.match(regexes.svgPath)[0]);
+
+		const providedPath = image.match(regexes.svgPath)[0];
+
+		const fsReadPath = normalizePath(regexes.ascend.test(providedPath) ? (separatePath(file.from).dir + providedPath) : providedPath);
+
 		let svgtext = '';
-		try { svgtext = fs.readFileSync(imgPath, {encoding: 'utf-8'}) }
-		catch (error) { 
-			console.warn(colorText(` -! ${imgPath}`, 'yellow', null));
+
+		try { 
+			svgtext = fs.readFileSync(fsReadPath, {encoding: 'utf-8'});
+		} catch (error) { 
+			console.warn(colorText(` -! ${fsReadPath}`, 'yellow', null));
 			return;
 		}
 
@@ -340,11 +344,11 @@ const bundle_css = (file:_pathPair) => {
 
 		cssText = cssText.replace(image, `url("data:image/svg+xml,${encodeURIComponent(svgtext)}")`);
 		
-		if (!flags.silent) console.log(` --> ${imgPath}`);
+		if (!flags.silent) console.log(` --> ${fsReadPath}`);
 		imagesLoaded++;
 	});
 
-	const destDir = separatePath(normalizePath(file.to)).dir;
+	const destDir = separatePath(file.to).dir;
 		if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
 	fs.writeFileSync(file.to, cssText, {encoding: 'utf8'});
 

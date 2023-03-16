@@ -1,0 +1,10 @@
+{
+	"files": [
+		{
+			"from": "test/assets",
+			"to": "test/public/countries.css",
+			"prefix": "countrycode",
+			"selector": "valid"
+		}
+	]
+}

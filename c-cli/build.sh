@@ -1,1 +1,0 @@
-gcc csvg_main.c -o csvg
