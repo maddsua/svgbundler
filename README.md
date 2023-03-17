@@ -20,9 +20,9 @@ Just like this:
 
 2. Place your `.svg` images somewhere in projects directory
 
-3. Add a npm script like this:
+3. Use cli or add as an npm script:
 
-	`"svgs": "svgbundler -m -r -f /test/src/form:test/public/ui.css test/style.css:test/public/style.css"`
+	`svgbundler -m -f /test/src/form:test/public/ui.css test/style.css:test/public/style.css`
 
 	**In detail:**
 
