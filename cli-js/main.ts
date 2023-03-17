@@ -218,7 +218,7 @@ const bundle_svgdir = (svgDir: i_pathPair) => {
 
 		let classname = (() => {
 
-			let temp = svgFile.slice(svgDir.from.length).replace(/^[\\\/\_\-]+/, '').replace(/[\\\/\-\_]+$/, '');
+			let temp = svgFile.slice(svgDir.from.length).replace(/^[\\\/\_\-]+/, '').replace(/[\\\/\-\_]+$/, '').replace(/\.svg/, '');
 			if (flags.flatten) temp = temp.replace(/-/g, '_');
 			let classPrefix = svgDir.prefix ? svgDir.prefix : classPrefixText;
 			if (classPrefix.length) classPrefix += '-';
