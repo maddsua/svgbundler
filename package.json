@@ -1,6 +1,6 @@
 {
 	"name": "@maddsua/svgbundler",
-	"version": "1.6.2",
+	"version": "1.6.3",
 	"description": "Bundles separate .svg images to a single .css file",
 	"type": "module",
 	"bin": {

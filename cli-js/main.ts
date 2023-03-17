@@ -209,20 +209,19 @@ const bundle_svgdir = (svgDir: i_pathPair) => {
 		svgFile = path.normalize(svgFile);
 
 		let svgtext = '';
-		try { svgtext = fs.readFileSync(svgFile, {encoding: 'utf8'}) }
-		catch (error) {
+		try {
+			svgtext = fs.readFileSync(svgFile, { encoding: 'utf8' }) 
+		} catch (error) {
 			console.warn(chalk.red(' Cant\'t read file:'), svgFile);
 			return '';
 		}
 
 		let classname = (() => {
 
-			let temp = svgFile.slice(svgDir.from.length);
-
+			let temp = svgFile.slice(svgDir.from.length).replace(/^[\\\/\_\-]+/, '').replace(/[\\\/\-\_]+$/, '');
 			if (flags.flatten) temp = temp.replace(/-/g, '_');
-
 			let classPrefix = svgDir.prefix ? svgDir.prefix : classPrefixText;
-				if (classPrefix.length) classPrefix += '-';
+			if (classPrefix.length) classPrefix += '-';
 
 			return `.${classPrefix}${temp.replace(/[\\\/]+/g, '-')}`;
 		})();
