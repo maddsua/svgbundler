@@ -135,7 +135,7 @@ parseInputsJSON('./svgbundler.config.json');
 */
 if (!(sources.css.length + sources.svg.length)) {
 	console.error(chalk.red('Specify at least one input directory+destination file or a .css to bundle'), '\r\n');
-	console.error(chalk.bgRed(' Build aborted '));
+	console.error(chalk.black.bgRed(' Build aborted '));
 	process.exit(1);
 }
 
@@ -257,7 +257,7 @@ const bundle_css = (file: i_pathPair) => {
 	let cssText = '';
 	try { cssText = fs.readFileSync(file.from, {encoding: 'utf-8'}) }
 	catch (error) { 
-		console.warn(chalk.bgYellow(' Cannot read: '), chalk.yellow(file.from));
+		console.warn(chalk.black.bgYellow(' Cannot read: '), chalk.yellow(file.from));
 		return;
 	}
 
@@ -310,18 +310,25 @@ const bundle_css = (file: i_pathPair) => {
 	Add watchdogs for svg sources
 */
 sources.svg.forEach((item) => {
+
 	bundle_svg(item);
-	if (flags.watch) {
-		let changeHandler: NodeJS.Timeout | number = 0;
-		if (!fs.existsSync(item.from)) return;
-		fs.watch(item.from, () => {
-			clearTimeout(changeHandler);
-			changeHandler = setTimeout(() => {
-				printTime();
-				bundle_svg(item);
-			}, fsWatch_evHold);
-		});
-	}
+
+	if (!flags.watch) return;
+	if (!fs.existsSync(item.from)) return;
+
+	let changeHandler: NodeJS.Timeout | number = 0;
+
+	fs.watch(item.from, () => {
+
+		clearTimeout(changeHandler);
+		changeHandler = setTimeout(() => {
+
+			printTime();
+			bundle_svg(item);
+
+		}, fsWatch_evHold);
+	});
+	
 });
 
 
@@ -329,30 +336,39 @@ sources.svg.forEach((item) => {
 	Add watchdogs for css sources
 */
 sources.css.forEach((item) => {
+
 	bundle_css(item);
-	if (flags.watch) {
-		let locked = false;
-		let changeHandler: NodeJS.Timeout | number = 0;
-		if (!fs.existsSync(item.from)) return;
-		fs.watch(item.from, () => {
-			clearTimeout(changeHandler);
-			if (locked) return;
-			changeHandler = setTimeout(() => {
-				if (item.from === item.to) {
-					locked = true;
-					setTimeout(() => {
-						locked = false;
-					}, fsWatch_evHold);
-				}
-				printTime();
-				bundle_css(item);
-			}, fsWatch_evHold);
-		});
-	}
+
+	if (!flags.watch) return;
+	if (!fs.existsSync(item.from)) return;
+
+	let locked = false;
+	let changeHandler: NodeJS.Timeout | number = 0;
+
+	fs.watch(item.from, () => {
+
+		clearTimeout(changeHandler);
+
+		if (locked) return;
+
+		changeHandler = setTimeout(() => {
+
+			if (item.from === item.to) {
+
+				locked = true;
+				setTimeout(() => locked = false, fsWatch_evHold);
+			}
+
+			printTime();
+			bundle_css(item);
+
+		}, fsWatch_evHold);
+	});
+
 });
 
 
 /*
 	Report and call it a day
 */
-if (flags.watch) console.log('\r\n', chalk.bgGreen(' Watching for file changes '), '\r\n');
+if (flags.watch) console.log('\r\n', chalk.black.bgGreen(' Watching for file changes '), '\r\n');
