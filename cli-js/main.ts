@@ -11,15 +11,15 @@
 */
 
 import fs from 'fs';
+import path from 'path';
 import { globSync } from 'glob';
 import chalk from 'chalk';
-
-import { separatePath, normalizePath } from '@maddsua/webappkit/textutils';
 
 
 const minSvgLength = 32;
 const fsWatch_evHold = 100;
 const styleSourceFile = /\.s?css$/;
+const rootPathRegex = /^[\\\/]+/;
 
 
 /*
@@ -79,12 +79,17 @@ const parseInputsJSON = (jsonFilePath: string) => {
 		const bundlerFilesList = bundlerBlock['files'];
 
 		bundlerFilesList.forEach((item: i_pathPair) => {
+
 			//	perform checks
 			if (typeof item.from !== 'string') return;
 			if (typeof item.to !== 'string') return;
 			if (typeof item.prefix !== 'string') item.prefix = null;
 			if (typeof item.selector !== 'string') item.selector = null;
 			if (typeof item.override !== 'boolean') item.override = false;
+
+			//	path transformations
+			item.from = item.from.replace(rootPathRegex, '');
+			item.to = item.to.replace(rootPathRegex, '');
 	
 			//	decide where to put this Harry Potter
 			(styleSourceFile.test(item.from) ? sources.css : sources.svg).push(item);
@@ -119,7 +124,10 @@ process.argv.forEach((arg) => {
 			if (!(new RegExp(`^${validPath.source}\\:${validPath.source}$`,'g')).test(arg)) return;
 		const match = arg.match(validPath);
 			if (match?.length !== 2) return false;
-		(match[0].match(styleSourceFile) ? sources.css : sources.svg).push({from: normalizePath(match[0]), to: normalizePath(match[1])});
+		(match[0].match(styleSourceFile) ? sources.css : sources.svg).push({
+			from: path.normalize(match[0]).replace(rootPathRegex, ''),
+			to: path.normalize(match[1]).replace(rootPathRegex, '')
+		});
 	})();
 });
 
@@ -191,15 +199,15 @@ const minify = (xml:string) => {
 /*
 	Stuff to do the job
 */
-const bundle_svg = (svgDir:i_pathPair) => {
+const bundle_svgdir = (svgDir: i_pathPair) => {
 	console.log(chalk.green(`Compiling to ${svgDir.to} `));
 
 	let writeContents = '';
 	let imagesLoaded = 0;
 
-	globSync(`${svgDir.from}/**/*.svg`).forEach((svgFile) => {
+	globSync(path.normalize(`${svgDir.from}/**/*.svg`).replace(/\\/g, '/')).forEach((svgFile) => {
 
-		svgFile = normalizePath(svgFile);
+		svgFile = path.normalize(svgFile);
 
 		let svgtext = '';
 		try { svgtext = fs.readFileSync(svgFile, {encoding: 'utf8'}) }
@@ -209,14 +217,15 @@ const bundle_svg = (svgDir:i_pathPair) => {
 		}
 
 		let classname = (() => {
+
 			let temp = svgFile.slice(svgDir.from.length);
-				if (temp.includes('.')) temp = temp.slice(0, temp.indexOf('.'));
-				if (temp.startsWith('/')) temp = temp.slice(1);
-				if (flags.flatten) temp = temp.replace(/-/g, '_');
+
+			if (flags.flatten) temp = temp.replace(/-/g, '_');
 
 			let classPrefix = svgDir.prefix ? svgDir.prefix : classPrefixText;
 				if (classPrefix.length) classPrefix += '-';
-			return `.${classPrefix}${temp.replace(/[\/]{1,}|[\\]{1,}/g, '-')}`;
+
+			return `.${classPrefix}${temp.replace(/[\/\\]{1,}/g, '-')}`;
 		})();
 
 		if (flags.optimize) svgtext = minify(svgtext);
@@ -239,7 +248,7 @@ const bundle_svg = (svgDir:i_pathPair) => {
 		return;
 	}
 
-	const destDir = separatePath(svgDir.to).dir;
+	const destDir = path.dirname(svgDir.to);
 		if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
 	fs.writeFileSync(svgDir.to, writeContents, {encoding: 'utf8'});
 
@@ -251,12 +260,13 @@ const bundle_svg = (svgDir:i_pathPair) => {
 /*
 	Stuff to do the job a lil differently
 */
-const bundle_css = (file: i_pathPair) => {
+const bundle_cssfile = (file: i_pathPair) => {
 	console.log(chalk.green(`Bundling ${file.from} to ${file.to} `));
 
 	let cssText = '';
-	try { cssText = fs.readFileSync(file.from, {encoding: 'utf-8'}) }
-	catch (error) { 
+	try {
+		cssText = fs.readFileSync(file.from, {encoding: 'utf-8'})
+	} catch (error) { 
 		console.warn(chalk.black.bgYellow(' Cannot read: '), chalk.yellow(file.from));
 		return;
 	}
@@ -273,7 +283,7 @@ const bundle_css = (file: i_pathPair) => {
 
 		const providedPath = image.match(regexes.svgPath)[0];
 
-		const fsReadPath = normalizePath(regexes.ascend.test(providedPath) ? (separatePath(file.from).dir + providedPath) : providedPath);
+		const fsReadPath = path.normalize(regexes.ascend.test(providedPath) ? (path.dirname(file.from) + '\\' + providedPath) : providedPath).replace(rootPathRegex, '');
 
 		let svgtext = '';
 
@@ -294,7 +304,7 @@ const bundle_css = (file: i_pathPair) => {
 		imagesLoaded++;
 	});
 
-	const destDir = separatePath(file.to).dir;
+	const destDir = path.dirname(file.to);
 		if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
 	fs.writeFileSync(file.to, cssText, {encoding: 'utf8'});
 
@@ -311,7 +321,7 @@ const bundle_css = (file: i_pathPair) => {
 */
 sources.svg.forEach((item) => {
 
-	bundle_svg(item);
+	bundle_svgdir(item);
 
 	if (!flags.watch) return;
 	if (!fs.existsSync(item.from)) return;
@@ -324,7 +334,7 @@ sources.svg.forEach((item) => {
 		changeHandler = setTimeout(() => {
 
 			printTime();
-			bundle_svg(item);
+			bundle_svgdir(item);
 
 		}, fsWatch_evHold);
 	});
@@ -337,7 +347,7 @@ sources.svg.forEach((item) => {
 */
 sources.css.forEach((item) => {
 
-	bundle_css(item);
+	bundle_cssfile(item);
 
 	if (!flags.watch) return;
 	if (!fs.existsSync(item.from)) return;
@@ -360,7 +370,7 @@ sources.css.forEach((item) => {
 			}
 
 			printTime();
-			bundle_css(item);
+			bundle_cssfile(item);
 
 		}, fsWatch_evHold);
 	});
