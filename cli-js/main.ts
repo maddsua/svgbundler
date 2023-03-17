@@ -177,7 +177,6 @@ const minify = (xml:string) => {
 
 	//	remove attribs
 	regexes.rmAttribs.forEach((attrib) => {
-		//	/(attrib\=\"[^\"]{0,}\")|(attrib\=\'[^\']{0,}\')/g
 		const domAttribRegex = new RegExp(`(${attrib}\\=\\\"[^\\\"]{0,}\\\")|(${attrib}\\=\\'[^\\']{0,}\\')`, 'g');
 		if (domAttribRegex.test(xml)) xml = xml.replace(domAttribRegex, '');
 	});
@@ -200,7 +199,7 @@ const minify = (xml:string) => {
 	Stuff to do the job
 */
 const bundle_svgdir = (svgDir: i_pathPair) => {
-	console.log(chalk.green(`Compiling to ${svgDir.to} `));
+	console.log(chalk.green(`Compiling ${svgDir.from} to ${svgDir.to} `));
 
 	let writeContents = '';
 	let imagesLoaded = 0;
@@ -225,7 +224,7 @@ const bundle_svgdir = (svgDir: i_pathPair) => {
 			let classPrefix = svgDir.prefix ? svgDir.prefix : classPrefixText;
 				if (classPrefix.length) classPrefix += '-';
 
-			return `.${classPrefix}${temp.replace(/[\/\\]{1,}/g, '-')}`;
+			return `.${classPrefix}${temp.replace(/[\\\/]+/g, '-')}`;
 		})();
 
 		if (flags.optimize) svgtext = minify(svgtext);
