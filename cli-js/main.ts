@@ -38,8 +38,10 @@ const flags = {
 	watch: false,
 	silent: false,
 	flatten: false,
-	loadFromPackage: false
+	loadFromPackage: false,
+	loadFromConfig: false
 };
+
 let classPrefixText = '';
 const pushPreClass = (arg:string, argpatt:string) => {
 	if (!arg.startsWith(argpatt)) return false;
@@ -117,6 +119,7 @@ process.argv.forEach((arg) => {
 	if (arg === '--watch' || arg === '-w') flags.watch = true;
 	if (arg === '--flags.silent' || arg === '-s') flags.silent = true;
 	if (arg === '--package' || arg === '-p') flags.loadFromPackage = true;
+	if (arg === '--config' || arg === '-c') flags.loadFromConfig = true;
 
 	//	add sources
 	(() => {
@@ -135,7 +138,7 @@ process.argv.forEach((arg) => {
 if (flags.loadFromPackage) parseInputsJSON('./package.json');
 
 //	and by default try to get them from own config file
-parseInputsJSON('./svgbundler.config.json');
+if (flags.loadFromConfig) parseInputsJSON('./svgbundler.config.json');
 
 
 /*

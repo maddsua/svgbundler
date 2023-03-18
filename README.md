@@ -82,7 +82,9 @@ Or in `svgbundler.json`:
 
 5. `--silent` | `-s` : Don't list all the input files, silent mode
 
-6. `--package` | `-p` : Load files from package.json (format specified above)
+6. `--package` | `-p` : Load files from the package.json (format specified above)
+
+7. `--config` | `-c` : Load files from the svgbundler.config.json
 
 
 ---
