@@ -1,4 +1,4 @@
-# svgbundler | The old C version is [here](/c-cli/)
+# svgbundler
 
 Basically, it takes a bunch of vector images and embedds them into single `.css` file.
 
